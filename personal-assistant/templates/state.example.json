@@ -1,0 +1,31 @@
+{
+  "last_run": null,
+  "tomorrow_focus": null,
+  "briefs": [
+    {"date": "YYYY-MM-DD", "mode": "morning", "file": "briefs/YYYY-MM-DD-morning.json", "hot": 0, "waiting": 0}
+  ],
+  "items": [
+    {
+      "id": "1-YYYY-MM-DD",
+      "source": "email | chat | calendar | tasks | ticket | wiki | meeting",
+      "ref": "thread id / permalink / ticket key / channel id",
+      "status": "open | done | snoozed | dismissed",
+      "snoozed_until": null,
+      "lno": "L | N | O",
+      "session": null,
+      "event_id": null,
+      "note": "",
+      "done_at": null
+    }
+  ],
+  "meetings_seen": [],
+  "meeting_followups": [
+    {"meeting": "", "source": "", "url": "", "owner": "", "text": "", "due": "", "status": "open", "seen": "YYYY-MM-DD"}
+  ],
+  "pending_notes": [
+    {"text": "", "link": "", "from": "", "brief": ""}
+  ],
+  "sessions": {
+    "short-name": {"id": "", "task": "", "started": "YYYY-MM-DD", "status": "running | done"}
+  }
+}

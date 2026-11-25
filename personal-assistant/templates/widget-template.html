@@ -1,0 +1,133 @@
+<!--
+  Brief card form for the Claude desktop app (rendered with the show_widget tool).
+  The hub replaces __ITEMS__ with the brief's items array (JSON) and renders it unchanged.
+  To translate the UI, edit only the L object below.
+  The user picks an action per card and/or types a note. "Run selected" sends a single chat message:
+    Brief #N (key): <action prompt>[ — Note: <text>]
+  Nothing is executed by this page; the hub session does the work after the message arrives.
+-->
+<h2 class="sr-only">Brief: pick an action per item, then run them all with the button at the bottom</h2>
+<div id="brief" style="display:flex; flex-direction:column; gap:10px; padding:0.5rem 0;"></div>
+<div style="display:flex; gap:10px; align-items:center; justify-content:flex-end; flex-wrap:wrap; padding:0.5rem 0 1rem;">
+  <button id="allnote" type="button" style="font-size:13px; padding:4px 10px;"></button>
+  <span id="cnt" style="font-size:13px; color:var(--text-secondary);"></span>
+  <span id="err" style="display:none; font-size:13px; color:var(--text-danger);"></span>
+  <button id="go" type="button" style="font-size:14px; padding:6px 14px; border-color:var(--border-accent); color:var(--text-accent);"></button>
+</div>
+<script>
+const ITEMS = __ITEMS__;
+const L = {
+  hot: 'Urgent', wait: 'Waiting for you', note: 'FYI', idea: 'Suggestions',
+  doIt: 'do it yourself', draftLabel: 'Draft reply', editable: '(you can edit)',
+  ownNote: 'Or type what you want done with this', snooze: 'Snooze…',
+  snoozeOpts: [['tomorrow', 'Tomorrow'], ['until Monday', 'Monday'], ['by a week', 'In a week'], ['by 2 weeks', 'In 2 weeks'], ['forever (never show again)', 'Never show again']],
+  snoozePrompt: 'snooze ', picked: 'Selected: ', ownInstr: 'own instruction', noteSep: ' — Note: ',
+  allNote: 'Acknowledge / archive all FYI', run: 'Run selected ↗', pickFirst: 'Pick an action or type something first',
+  count: (n, t) => 'Selected ' + n + ' of ' + t + ' · the form can be used repeatedly',
+  sent: (n, left) => 'Sent ' + n + ' · ' + left + ' left'
+};
+const SEC = {hot: {icon: 'ti-flame', color: 'var(--text-danger)'}, wait: {icon: 'ti-hourglass', color: 'var(--text-warning)'}, note: {icon: 'ti-bell', color: 'var(--text-secondary)'}, idea: {icon: 'ti-bulb', color: 'var(--text-accent)'}};
+const VER = {ok: ['ti-circle-check', 'var(--text-success)'], warn: ['ti-alert-triangle', 'var(--text-warning)'], unsure: ['ti-help-circle', 'var(--text-secondary)']};
+document.getElementById('allnote').textContent = L.allNote;
+document.getElementById('go').textContent = L.run;
+document.getElementById('err').textContent = L.pickFirst;
+const root = document.getElementById('brief');
+const CHOICE = {}, ROWS = {}, DONE = {};
+let last = null;
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c])); }
+function drOf(n) { const d = ROWS[n] && ROWS[n].querySelector('.dr'); return d ? d.value.trim() : ''; }
+function fbOf(n) { const f = ROWS[n] && ROWS[n].querySelector('.fb'); return f ? f.value.trim() : ''; }
+function fill(p, n) { return p.indexOf('{draft}') < 0 ? p : p.split('{draft}').join('«' + drOf(n) + '»'); }
+function refresh() {
+  const n = ITEMS.filter(it => !DONE[it.n] && (CHOICE[it.n] || fbOf(it.n))).length;
+  document.getElementById('cnt').textContent = L.count(n, ITEMS.length);
+  if (n) document.getElementById('err').style.display = 'none';
+}
+function paint(it) {
+  const row = ROWS[it.n], c = CHOICE[it.n];
+  row.querySelectorAll('button[data-i]').forEach(b => {
+    const on = c && c.i === Number(b.dataset.i);
+    b.style.background = on ? 'var(--bg-accent)' : '';
+    b.style.borderColor = on || b.dataset.i === '0' ? 'var(--border-accent)' : '';
+    b.style.color = on || b.dataset.i === '0' ? 'var(--text-accent)' : '';
+  });
+  const sel = row.querySelector('select');
+  if (sel && (!c || c.i !== -1)) sel.value = '';
+  const s = row.querySelector('.st');
+  s.textContent = c ? L.picked + c.label : '';
+  s.style.display = c ? 'inline' : 'none';
+  refresh();
+}
+ITEMS.forEach(it => {
+  const sec = SEC[it.section] || SEC.note;
+  if (it.section !== last) {
+    const h = document.createElement('div');
+    h.style.cssText = 'font-size:13px; font-weight:500; color:' + sec.color + '; margin-top:8px; display:flex; gap:6px; align-items:center;';
+    h.innerHTML = '<i class="ti ' + sec.icon + '" aria-hidden="true"></i>' + esc(L[it.section] || it.section);
+    root.appendChild(h); last = it.section;
+  }
+  const row = document.createElement('div');
+  ROWS[it.n] = row;
+  row.style.cssText = 'border:0.5px solid var(--border); border-radius:12px; padding:12px 14px; background:var(--surface-2); display:flex; flex-direction:column; gap:8px;';
+  const v = it.verdict ? VER[it.verdict] : null;
+  row.innerHTML =
+    '<div style="display:flex; gap:8px; align-items:baseline; justify-content:space-between;">' +
+      '<div style="font-size:14px; line-height:1.5;"><span style="color:var(--text-muted); margin-right:6px;">' + esc(it.n) + '</span>' + esc(it.title) +
+      (it.link ? ' <a href="' + esc(it.link) + '" style="font-size:13px; white-space:nowrap;">' + L.doIt + ' <i class="ti ti-external-link" aria-hidden="true"></i></a>' : '') + '</div>' +
+      '<span class="st" style="display:none; font-size:12px; color:var(--text-accent); white-space:nowrap;"></span>' +
+    '</div>' +
+    (it.verdictText ? '<div class="vt" style="font-size:13px; line-height:1.5; color:var(--text-secondary); display:flex; gap:6px;">' +
+      (v ? '<i class="ti ' + v[0] + '" style="color:' + v[1] + '; font-size:16px; margin-top:2px;" aria-hidden="true"></i>' : '') +
+      '<span>' + esc(it.verdictText) + '</span></div>' : '') +
+    (it.draft ? '<label style="font-size:12px; color:var(--text-muted);">' + L.draftLabel + (it.draftTo ? ' · ' + esc(it.draftTo) : '') + ' ' + L.editable + '</label><textarea class="dr" rows="' + Math.min(8, Math.max(2, Math.ceil(it.draft.length / 90) + (it.draft.split('\n').length - 1))) + '" style="font-size:13px; line-height:1.5; width:100%; resize:vertical;"></textarea>' : '') +
+    '<div class="act" style="display:flex; flex-wrap:wrap; gap:6px; align-items:center;"></div>' +
+    '<input type="text" class="fb" aria-label="' + L.ownNote + '" placeholder="' + L.ownNote + '" style="font-size:13px; height:32px; width:100%;">';
+  if (it.draft) row.querySelector('.dr').value = it.draft;
+  const act = row.querySelector('.act');
+  (it.actions || []).forEach((a, i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = a.label; b.dataset.i = i;
+    b.style.cssText = 'font-size:13px; padding:4px 10px;';
+    b.onclick = () => {
+      if (DONE[it.n]) return;
+      if (CHOICE[it.n] && CHOICE[it.n].i === i) delete CHOICE[it.n];
+      else CHOICE[it.n] = {i: i, label: a.label, prompt: a.prompt};
+      paint(it);
+    };
+    act.appendChild(b);
+  });
+  const sel = document.createElement('select');
+  sel.style.cssText = 'font-size:13px; height:30px; width:auto;';
+  sel.innerHTML = '<option value="">' + L.snooze + '</option>' + L.snoozeOpts.map(o => '<option value="' + o[0] + '">' + o[1] + '</option>').join('');
+  sel.onchange = () => {
+    if (DONE[it.n]) return;
+    if (!sel.value) delete CHOICE[it.n];
+    else CHOICE[it.n] = {i: -1, label: sel.options[sel.selectedIndex].text, prompt: L.snoozePrompt + sel.value};
+    paint(it);
+  };
+  act.appendChild(sel);
+  row.querySelector('.fb').oninput = () => { if (!DONE[it.n]) refresh(); };
+  root.appendChild(row);
+  paint(it);
+});
+document.getElementById('allnote').onclick = () => {
+  ITEMS.filter(it => it.section === 'note' && !DONE[it.n] && !CHOICE[it.n] && it.actions && it.actions.length)
+    .forEach(it => { const a = it.actions[0]; CHOICE[it.n] = {i: 0, label: a.label, prompt: a.prompt}; paint(it); });
+};
+function collapse(it, how) {
+  const r = ROWS[it.n]; DONE[it.n] = true; delete CHOICE[it.n];
+  r.querySelectorAll('.dr, .act, .fb, .vt, label').forEach(e => e.remove());
+  r.style.opacity = '0.5'; r.style.padding = '6px 14px';
+  const st = r.querySelector('.st'); st.textContent = '✓ ' + how; st.style.display = 'inline';
+}
+document.getElementById('go').onclick = () => {
+  const picked = ITEMS.filter(it => !DONE[it.n] && (CHOICE[it.n] || fbOf(it.n)));
+  if (!picked.length) { document.getElementById('err').style.display = 'inline'; return; }
+  sendPrompt(picked.map(it => {
+    const c = CHOICE[it.n], f = fbOf(it.n);
+    return 'Brief #' + it.n + ' (' + it.key + '): ' + (c ? fill(c.prompt, it.n) + (f ? L.noteSep + f : '') : f);
+  }).join('\n'));
+  picked.forEach(it => collapse(it, CHOICE[it.n] ? CHOICE[it.n].label : L.ownInstr));
+  document.getElementById('cnt').textContent = L.sent(picked.length, ITEMS.filter(it => !DONE[it.n]).length);
+};
+</script>
