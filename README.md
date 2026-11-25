@@ -1,6 +1,6 @@
 # A personal assistant built with Claude
 
-Twice a day, a scheduled Claude task goes through your email, chat, calendar, task list and meeting notes. It archives the noise and prepares everything else:
+Every weekday morning (and later, if you want, in the afternoon too), a scheduled Claude task goes through your email, chat, calendar, task list and meeting notes. It archives the noise and prepares everything else:
 - the context;
 - a recommendation (✅ / ⚠️ / ❓);
 - a draft reply in your voice, when a reply is needed.
@@ -14,7 +14,7 @@ Optional extras:
 
 It is just **plain text files and scheduled tasks**: no code to run, no server. You change how it behaves by telling it ("archive LinkedIn notifications", "replies to Alex in English"), and it updates its own rules.
 
-**You don't need to be a developer.** Setup is a conversation: Claude asks, you answer, Claude writes the files.
+**You don't need to be a developer.** Setup is a 5-minute conversation: Claude asks four questions, you answer, Claude writes the files.
 
 ## What you need
 - The **Claude desktop app** ([download](https://claude.ai/download)) on a paid plan that includes Claude Code. You'll use its **Code** tab. The card form and the scheduled briefs live there.
@@ -23,7 +23,7 @@ It is just **plain text files and scheduled tasks**: no code to run, no server. 
   - **Recommended:** chat (Slack or Teams).
   - **Optional:** tickets and wiki (Jira, Confluence, Notion, Linear…), a meeting notetaker, file storage (Drive, OneDrive), and Claude in Chrome for tools that have no connector.
 - Your computer awake with the app running at brief times. Missed runs catch up later.
-- About 20 minutes for setup, then about two weeks of small corrections until it feels like yours.
+- About 5 minutes for setup. Over the first two weeks, some briefs carry one small question (your goals, your writing style, which newsletters to keep…), so it becomes yours without a long interview up front.
 
 ## How to install
 
@@ -38,7 +38,9 @@ It is just **plain text files and scheduled tasks**: no code to run, no server. 
 2. Open the **Claude desktop app → Code** → new session → choose the unzipped folder.
 3. Type: **`Read personal-assistant/SKILL.md and set me up.`**
 
-Then answer the questions: your role and goals, your tools, brief times, what counts as noise, which channels to watch, your writing style, meetings, and hard rules. Answer in any language, by typing or by voice. Claude then creates your files, the "Assistant" hub session and the scheduled briefs, and runs a first brief with you.
+Then answer four quick questions: when you want your morning brief, your role in one sentence, where you keep your to-dos, and anything it must never touch. Answer in any language. Claude reads your name, time zone and connected tools by itself, then creates your files, the "Assistant" hub session and the morning brief, and runs the first brief with you.
+
+Everything else (goals, important people, noise rules, newsletters, chat channels, writing style, meeting prep, more briefs a day) has a safe default and is asked later, one card at a time, when it first comes up. Say "ask me everything now" in the hub if you prefer to do it all at once.
 
 ## Safety defaults (built into every prompt)
 - **Nothing is sent to anyone without your explicit OK for that specific message.** The assistant writes drafts. Clicking "Send" on a card that shows the exact text counts as that OK.
@@ -54,7 +56,7 @@ You can make these stricter during setup. The setup will not make them looser.
 | File | What it is |
 |---|---|
 | `personal-assistant.zip` | The skill, ready to upload to claude.ai. Same content as the folder below. |
-| `personal-assistant/SKILL.md` | The interview script Claude follows to set you up. |
+| `personal-assistant/SKILL.md` | The setup script Claude follows: four questions now, the rest later. |
 | `personal-assistant/templates/hub-prompt.md` | How the "Assistant" hub shows briefs and handles your clicks and voice commands. |
 | `personal-assistant/templates/brief-prompt.md` | What each scheduled brief collects, how it prepares items, and the evening and weekly modes. |
 | `personal-assistant/templates/playbooks.md` | How to prepare each item type: approvals, texts to review, vendor pitches, meeting prep. |

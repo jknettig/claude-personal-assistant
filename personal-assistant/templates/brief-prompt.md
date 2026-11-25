@@ -134,6 +134,14 @@ Don't repeat anything between the form and FYI. The form may have 30+ cards; kee
 
 Afternoon: if nothing is new, hand over nothing and send nothing.
 
+## 4b. One setup question (setup backlog)
+`state.json › setup_backlog` lists things the setup didn't ask yet. In each brief, check the open items (skip snoozed ones until `snoozed_until`). If one item's trigger fired in **this** brief's data, add **one** card to the 💡 `idea` section, never more than one per brief:
+- the title is the question in one line, with the reason ("so I can mark Leverage work");
+- where you can, propose the answer from data you already have (frequent senders, newsletter names, active channels) and make it the first action, for example "Yes, use this list";
+- the other actions: "Ask me later" (prompt: `setup backlog <key>: snooze 1 week`) and "Never" (prompt: `setup backlog <key>: never`);
+- the `key` of the card is `setup-<backlog key>`.
+Until an item is answered, use its default.
+
 ## 5. Tasks
 Write tasks that clearly came out of communication (someone asked for something, a deadline, a promise {{USER_NAME}} made) to the task list per `tasks.md`, with the L/N/O prefix and a link to the source. In the brief, write "➕ added to tasks: …" so {{USER_NAME}} can undo it. Tick off tasks that are provably done and write "✔ ticked off: …". Never delete.
 

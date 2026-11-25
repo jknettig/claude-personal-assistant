@@ -2,7 +2,13 @@
   "last_run": null,
   "tomorrow_focus": null,
   "briefs": [
-    {"date": "YYYY-MM-DD", "mode": "morning", "file": "briefs/YYYY-MM-DD-morning.json", "hot": 0, "waiting": 0}
+    {
+      "date": "YYYY-MM-DD",
+      "mode": "morning",
+      "file": "briefs/YYYY-MM-DD-morning.json",
+      "hot": 0,
+      "waiting": 0
+    }
   ],
   "items": [
     {
@@ -20,12 +26,39 @@
   ],
   "meetings_seen": [],
   "meeting_followups": [
-    {"meeting": "", "source": "", "url": "", "owner": "", "text": "", "due": "", "status": "open", "seen": "YYYY-MM-DD"}
+    {
+      "meeting": "",
+      "source": "",
+      "url": "",
+      "owner": "",
+      "text": "",
+      "due": "",
+      "status": "open",
+      "seen": "YYYY-MM-DD"
+    }
   ],
   "pending_notes": [
-    {"text": "", "link": "", "from": "", "brief": ""}
+    {
+      "text": "",
+      "link": "",
+      "from": "",
+      "brief": ""
+    }
   ],
   "sessions": {
-    "short-name": {"id": "", "task": "", "started": "YYYY-MM-DD", "status": "running | done"}
-  }
+    "short-name": {
+      "id": "",
+      "task": "",
+      "started": "YYYY-MM-DD",
+      "status": "running | done"
+    }
+  },
+  "setup_backlog": [
+    {
+      "key": "goals",
+      "status": "open | done | declined",
+      "snoozed_until": null,
+      "asked": 0
+    }
+  ]
 }

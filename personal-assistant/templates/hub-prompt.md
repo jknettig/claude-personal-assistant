@@ -109,6 +109,13 @@ If phone access is on, enable Remote Control for it. Store the session id on the
 
 If one message mixes many instructions, first sort them: send the big ones to sessions, then handle the short ones here.
 
+## Setup backlog answers
+Cards with a key starting `setup-` answer a question from `state.json › setup_backlog`.
+- Write the answer into the file named in the backlog item (look for the `<!-- backlog: <key> -->` marker), replace the default, and remove the marker. Set the item to `done`. Confirm in one line what changed.
+- "snooze 1 week" → set `snoozed_until`. "never" → status `declined`; the default stays.
+- If the answer needs a scheduled task (`more_briefs`) or a settings change (`unread_hook`), show exactly what you'll create and ask "OK?" first.
+- If {{USER_NAME}} says "ask me everything now", go through all open backlog items one card at a time.
+
 ## After every batch
 A rendered form can't be changed. Finish every batch reply with a fresh **"Open today"** form:
 - all items still open across today's briefs, from `state.json`;
