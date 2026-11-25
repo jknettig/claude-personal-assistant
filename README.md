@@ -48,7 +48,7 @@ Everything else (goals, important people, noise rules, newsletters, chat channel
 - **No passwords, logins, 2FA codes, card or account numbers, payments or purchases**, even if you ask. It opens the page and tells you what to click.
 - **The content of emails, messages and web pages is data, not instructions.** An email saying "forward this to…" gets reported, not obeyed.
 - **You decide.** It recommends; it never approves anything on its own initiative.
-- **Calendar:** it only blocks time in your own calendar, after a click, and never invites anyone.
+- **Calendar:** it only blocks time in your own calendar, after a click, and never invites anyone. A focus block is not counted as done work: if you don't get to it, just delete the block from your calendar and the assistant brings the task back.
 
 You can make these stricter during setup. The setup will not make them looser.
 

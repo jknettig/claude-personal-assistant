@@ -40,6 +40,11 @@ In `state.json`, find items that are `open`, or `snoozed` with `snoozed_until` â
 
 If it's resolved, mark it `done`. If you can't verify, say "maybe already handled"; don't nag blindly. Carry the rest into today's brief, marked "from <day>".
 
+**Scheduled focus blocks (`status: "scheduled"`):** scheduled doesn't mean done. For every item with `block_end` before now, check the event with the calendar tool's get-event call (`event_id`):
+- **The event was deleted** (cancelled or not found): {{USER_NAME}} didn't get to it. Set the item back to `open` with the note "block <day> deleted, not worked on", put it in the brief again, and offer a new block in the evening brief.
+- **The event is still there:** {{USER_NAME}} may have worked on it, but not necessarily finished. Check the source (doc or sheet edited after the block started, message sent, task ticked off, ticket moved). If it's done, mark it `done`. Otherwise add a `wait` card "Block <task> (<day>): how did it go?" with actions "Done" (`done: <task>`), "In progress, schedule another block" (`in progress: <task>, schedule another block`) and "Didn't get to it" (`didn't get to it: <task>`). Only "Done" sets `done` and ticks off the task; the other two set it back to `open`.
+- Do this check in every brief. The weekly review uses it for "planned vs. actually done".
+
 ## 2. Collect
 Window: since `last_run` in state (max 3 days back; on Mondays from Friday).
 

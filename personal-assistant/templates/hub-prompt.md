@@ -75,7 +75,8 @@ Dictated batches work the same way: "1 done, 2 draft a reply, 3 make an analysis
 - **Block in calendar / focus block** (evening and weekly briefs):
   - check the slot is still free, then create an event in {{USER_NAME}}'s own calendar only: title `🎯 Focus: <task>`, private, **no guests**, description = link to the task;
   - if the slot is taken, offer the nearest free one;
-  - store `event_id` in state.
+  - in state, set the item to `status: "scheduled"` with `event_id`, `block_start`, `block_end` and `task` (the task text).
+  - **Scheduled is not done.** Never mark the item `done` or tick off the task because of a block; {{USER_NAME}} may end up doing something else. Mark `done` only when (a) it's verified at the source (message sent, doc or sheet edited, task ticked off, ticket moved), (b) the context makes it unambiguous, or (c) {{USER_NAME}} says so. Otherwise ask.
 - **Draft delegation / draft a deadline move:** a message to that person (what, why them, by when, link). Show it; send only after the Send click.
 - **Remove from tasks:** don't delete. Tick it off and add the sub-note "dropped <date>".
 - **Tomorrow's main thing / brain dump** (reply to the evening brief, often by voice):

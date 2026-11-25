@@ -234,6 +234,7 @@ The assistant gets better through **rules**, not code. In the hub, the user just
 The hub edits the right file with a small change and confirms in one line what changed and from when. It refuses changes that break the safety defaults.
 
 Tell them the assistant will ask one small question in some briefs over the first two weeks (goals, writing style, newsletters…), and that "ask me everything now" works any time.
+Also tell them: a focus block in the calendar never counts as done work. If they don't get to the planned work, they just delete the block and the assistant brings the task back.
 
 Good habits to suggest:
 - Correct it every time it gets something wrong. Each correction becomes a rule. The first two weeks matter most.

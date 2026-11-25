@@ -15,11 +15,14 @@
       "id": "1-YYYY-MM-DD",
       "source": "email | chat | calendar | tasks | ticket | wiki | meeting",
       "ref": "thread id / permalink / ticket key / channel id",
-      "status": "open | done | snoozed | dismissed",
+      "status": "open | scheduled | done | snoozed | dismissed",
       "snoozed_until": null,
       "lno": "L | N | O",
       "session": null,
       "event_id": null,
+      "block_start": null,
+      "block_end": null,
+      "task": null,
       "note": "",
       "done_at": null
     }
