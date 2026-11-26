@@ -24,7 +24,8 @@ const L = {
   snoozePrompt: 'snooze ', picked: 'Selected: ', ownInstr: 'own instruction', noteSep: ' — Note: ',
   allNote: 'Acknowledge / archive all FYI', run: 'Run selected ↗', pickFirst: 'Pick an action or type something first',
   count: (n, t) => 'Selected ' + n + ' of ' + t + ' · the form can be used repeatedly',
-  sent: (n, left) => 'Sent ' + n + ' · ' + left + ' left'
+  sent: (n, left) => 'Sent ' + n + ' · ' + left + ' left',
+  sendFailed: 'Sending failed. Try again:', lastSent: 'Last sent. If an error popped up and the assistant did not react, send it again:', resend: 'Send again ↗'
 };
 const SEC = {hot: {icon: 'ti-flame', color: 'var(--text-danger)'}, wait: {icon: 'ti-hourglass', color: 'var(--text-warning)'}, note: {icon: 'ti-bell', color: 'var(--text-secondary)'}, idea: {icon: 'ti-bulb', color: 'var(--text-accent)'}};
 const VER = {ok: ['ti-circle-check', 'var(--text-success)'], warn: ['ti-alert-triangle', 'var(--text-warning)'], unsure: ['ti-help-circle', 'var(--text-secondary)']};
@@ -120,10 +121,28 @@ function collapse(it, how) {
   r.style.opacity = '0.5'; r.style.padding = '6px 14px';
   const st = r.querySelector('.st'); st.textContent = '✓ ' + how; st.style.display = 'inline';
 }
+function sendSafe(text) {
+  try { const r = sendPrompt(text); if (r && typeof r.then === 'function') r.catch(() => showResend(text, true)); }
+  catch (e) { showResend(text, true); return; }
+  showResend(text, false);
+}
+function showResend(text, failed) {
+  let box = document.getElementById('resend');
+  if (!box) {
+    box = document.createElement('div'); box.id = 'resend';
+    box.style.cssText = 'border:0.5px solid var(--border); border-radius:12px; padding:10px 14px; margin-bottom:1rem; display:flex; flex-direction:column; gap:6px;';
+    document.getElementById('go').parentNode.after(box);
+  }
+  box.innerHTML = '<div style="font-size:12px; color:' + (failed ? 'var(--text-danger)' : 'var(--text-muted)') + ';">' + (failed ? L.sendFailed : L.lastSent) + '</div>' +
+    '<textarea readonly rows="' + Math.min(6, text.split('\n').length + 1) + '" style="font-size:12px; width:100%; resize:vertical;"></textarea>' +
+    '<div><button type="button" style="font-size:13px; padding:4px 10px;">' + L.resend + '</button></div>';
+  box.querySelector('textarea').value = text;
+  box.querySelector('button').onclick = () => sendSafe(text);
+}
 document.getElementById('go').onclick = () => {
   const picked = ITEMS.filter(it => !DONE[it.n] && (CHOICE[it.n] || fbOf(it.n)));
   if (!picked.length) { document.getElementById('err').style.display = 'inline'; return; }
-  sendPrompt(picked.map(it => {
+  sendSafe(picked.map(it => {
     const c = CHOICE[it.n], f = fbOf(it.n);
     return 'Brief #' + it.n + ' (' + it.key + '): ' + (c ? fill(c.prompt, it.n) + (f ? L.noteSep + f : '') : f);
   }).join('\n'));

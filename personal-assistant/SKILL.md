@@ -218,7 +218,7 @@ Merge with existing settings; never overwrite the file. This works only in the d
 ## 5. Dry run
 
 1. Run the morning brief now (`run_scheduled_task`), or run its prompt in this session with `MODE=morning`.
-2. When the hub shows the form, tell the user in two lines how it works: pick an action per card or type a note, then "Run selected". Or just say "1 done, 2 snooze till Monday".
+2. When the hub shows the form, tell the user in two lines how it works: pick an action per card or type a note, then "Run selected". Or just say "1 done, 2 snooze till Monday". If sending from the form fails, the form keeps the text and shows a "Send again" button.
 3. Let them handle a few cards. If something feels wrong, fix the rule right away (§6). Don't run a long review: the setup backlog will refine it over the next days.
 
 ---

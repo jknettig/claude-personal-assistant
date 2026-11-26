@@ -292,7 +292,7 @@ The first runs may ask for permission to use tools. They should approve the read
 <ol><li>
 Run the morning brief now (<code>run_scheduled_task</code>), or run its prompt in this session with <code>MODE=morning</code>.
 </li><li>
-When the hub shows the form, tell the user in two lines how it works: pick an action per card or type a note, then "Run selected". Or just say "1 done, 2 snooze till Monday".
+When the hub shows the form, tell the user in two lines how it works: pick an action per card or type a note, then "Run selected". Or just say "1 done, 2 snooze till Monday". If sending from the form fails, the form keeps the text and shows a "Send again" button.
 </li><li>
 Let them handle a few cards. If something feels wrong, fix the rule right away (§6). Don't run a long review: the setup backlog will refine it over the next days.
 </li></ol>
@@ -1260,7 +1260,8 @@ const L = {
   snoozePrompt: &#x27;snooze &#x27;, picked: &#x27;Selected: &#x27;, ownInstr: &#x27;own instruction&#x27;, noteSep: &#x27; — Note: &#x27;,
   allNote: &#x27;Acknowledge / archive all FYI&#x27;, run: &#x27;Run selected ↗&#x27;, pickFirst: &#x27;Pick an action or type something first&#x27;,
   count: (n, t) =&gt; &#x27;Selected &#x27; + n + &#x27; of &#x27; + t + &#x27; · the form can be used repeatedly&#x27;,
-  sent: (n, left) =&gt; &#x27;Sent &#x27; + n + &#x27; · &#x27; + left + &#x27; left&#x27;
+  sent: (n, left) =&gt; &#x27;Sent &#x27; + n + &#x27; · &#x27; + left + &#x27; left&#x27;,
+  sendFailed: &#x27;Sending failed. Try again:&#x27;, lastSent: &#x27;Last sent. If an error popped up and the assistant did not react, send it again:&#x27;, resend: &#x27;Send again ↗&#x27;
 };
 const SEC = {hot: {icon: &#x27;ti-flame&#x27;, color: &#x27;var(--text-danger)&#x27;}, wait: {icon: &#x27;ti-hourglass&#x27;, color: &#x27;var(--text-warning)&#x27;}, note: {icon: &#x27;ti-bell&#x27;, color: &#x27;var(--text-secondary)&#x27;}, idea: {icon: &#x27;ti-bulb&#x27;, color: &#x27;var(--text-accent)&#x27;}};
 const VER = {ok: [&#x27;ti-circle-check&#x27;, &#x27;var(--text-success)&#x27;], warn: [&#x27;ti-alert-triangle&#x27;, &#x27;var(--text-warning)&#x27;], unsure: [&#x27;ti-help-circle&#x27;, &#x27;var(--text-secondary)&#x27;]};
@@ -1356,10 +1357,28 @@ function collapse(it, how) {
   r.style.opacity = &#x27;0.5&#x27;; r.style.padding = &#x27;6px 14px&#x27;;
   const st = r.querySelector(&#x27;.st&#x27;); st.textContent = &#x27;✓ &#x27; + how; st.style.display = &#x27;inline&#x27;;
 }
+function sendSafe(text) {
+  try { const r = sendPrompt(text); if (r &amp;&amp; typeof r.then === &#x27;function&#x27;) r.catch(() =&gt; showResend(text, true)); }
+  catch (e) { showResend(text, true); return; }
+  showResend(text, false);
+}
+function showResend(text, failed) {
+  let box = document.getElementById(&#x27;resend&#x27;);
+  if (!box) {
+    box = document.createElement(&#x27;div&#x27;); box.id = &#x27;resend&#x27;;
+    box.style.cssText = &#x27;border:0.5px solid var(--border); border-radius:12px; padding:10px 14px; margin-bottom:1rem; display:flex; flex-direction:column; gap:6px;&#x27;;
+    document.getElementById(&#x27;go&#x27;).parentNode.after(box);
+  }
+  box.innerHTML = &#x27;&lt;div style=&quot;font-size:12px; color:&#x27; + (failed ? &#x27;var(--text-danger)&#x27; : &#x27;var(--text-muted)&#x27;) + &#x27;;&quot;&gt;&#x27; + (failed ? L.sendFailed : L.lastSent) + &#x27;&lt;/div&gt;&#x27; +
+    &#x27;&lt;textarea readonly rows=&quot;&#x27; + Math.min(6, text.split(&#x27;\n&#x27;).length + 1) + &#x27;&quot; style=&quot;font-size:12px; width:100%; resize:vertical;&quot;&gt;&lt;/textarea&gt;&#x27; +
+    &#x27;&lt;div&gt;&lt;button type=&quot;button&quot; style=&quot;font-size:13px; padding:4px 10px;&quot;&gt;&#x27; + L.resend + &#x27;&lt;/button&gt;&lt;/div&gt;&#x27;;
+  box.querySelector(&#x27;textarea&#x27;).value = text;
+  box.querySelector(&#x27;button&#x27;).onclick = () =&gt; sendSafe(text);
+}
 document.getElementById(&#x27;go&#x27;).onclick = () =&gt; {
   const picked = ITEMS.filter(it =&gt; !DONE[it.n] &amp;&amp; (CHOICE[it.n] || fbOf(it.n)));
   if (!picked.length) { document.getElementById(&#x27;err&#x27;).style.display = &#x27;inline&#x27;; return; }
-  sendPrompt(picked.map(it =&gt; {
+  sendSafe(picked.map(it =&gt; {
     const c = CHOICE[it.n], f = fbOf(it.n);
     return &#x27;Brief #&#x27; + it.n + &#x27; (&#x27; + it.key + &#x27;): &#x27; + (c ? fill(c.prompt, it.n) + (f ? L.noteSep + f : &#x27;&#x27;) : f);
   }).join(&#x27;\n&#x27;));
@@ -1393,7 +1412,8 @@ const L = {
   snoozePrompt: &#x27;snooze &#x27;, picked: &#x27;Selected: &#x27;, ownInstr: &#x27;own instruction&#x27;, noteSep: &#x27; — Note: &#x27;,
   allNote: &#x27;Acknowledge / archive all FYI&#x27;, run: &#x27;Run selected ↗&#x27;, pickFirst: &#x27;Pick an action or type something first&#x27;,
   count: (n, t) =&gt; &#x27;Selected &#x27; + n + &#x27; of &#x27; + t + &#x27; · the form can be used repeatedly&#x27;,
-  sent: (n, left) =&gt; &#x27;Sent &#x27; + n + &#x27; · &#x27; + left + &#x27; left&#x27;
+  sent: (n, left) =&gt; &#x27;Sent &#x27; + n + &#x27; · &#x27; + left + &#x27; left&#x27;,
+  sendFailed: &#x27;Sending failed. Try again:&#x27;, lastSent: &#x27;Last sent. If an error popped up and the assistant did not react, send it again:&#x27;, resend: &#x27;Send again ↗&#x27;
 };
 const SEC = {hot: {icon: &#x27;ti-flame&#x27;, color: &#x27;var(--text-danger)&#x27;}, wait: {icon: &#x27;ti-hourglass&#x27;, color: &#x27;var(--text-warning)&#x27;}, note: {icon: &#x27;ti-bell&#x27;, color: &#x27;var(--text-secondary)&#x27;}, idea: {icon: &#x27;ti-bulb&#x27;, color: &#x27;var(--text-accent)&#x27;}};
 const VER = {ok: [&#x27;ti-circle-check&#x27;, &#x27;var(--text-success)&#x27;], warn: [&#x27;ti-alert-triangle&#x27;, &#x27;var(--text-warning)&#x27;], unsure: [&#x27;ti-help-circle&#x27;, &#x27;var(--text-secondary)&#x27;]};
@@ -1489,10 +1509,28 @@ function collapse(it, how) {
   r.style.opacity = &#x27;0.5&#x27;; r.style.padding = &#x27;6px 14px&#x27;;
   const st = r.querySelector(&#x27;.st&#x27;); st.textContent = &#x27;✓ &#x27; + how; st.style.display = &#x27;inline&#x27;;
 }
+function sendSafe(text) {
+  try { const r = sendPrompt(text); if (r &amp;&amp; typeof r.then === &#x27;function&#x27;) r.catch(() =&gt; showResend(text, true)); }
+  catch (e) { showResend(text, true); return; }
+  showResend(text, false);
+}
+function showResend(text, failed) {
+  let box = document.getElementById(&#x27;resend&#x27;);
+  if (!box) {
+    box = document.createElement(&#x27;div&#x27;); box.id = &#x27;resend&#x27;;
+    box.style.cssText = &#x27;border:0.5px solid var(--border); border-radius:12px; padding:10px 14px; margin-bottom:1rem; display:flex; flex-direction:column; gap:6px;&#x27;;
+    document.getElementById(&#x27;go&#x27;).parentNode.after(box);
+  }
+  box.innerHTML = &#x27;&lt;div style=&quot;font-size:12px; color:&#x27; + (failed ? &#x27;var(--text-danger)&#x27; : &#x27;var(--text-muted)&#x27;) + &#x27;;&quot;&gt;&#x27; + (failed ? L.sendFailed : L.lastSent) + &#x27;&lt;/div&gt;&#x27; +
+    &#x27;&lt;textarea readonly rows=&quot;&#x27; + Math.min(6, text.split(&#x27;\n&#x27;).length + 1) + &#x27;&quot; style=&quot;font-size:12px; width:100%; resize:vertical;&quot;&gt;&lt;/textarea&gt;&#x27; +
+    &#x27;&lt;div&gt;&lt;button type=&quot;button&quot; style=&quot;font-size:13px; padding:4px 10px;&quot;&gt;&#x27; + L.resend + &#x27;&lt;/button&gt;&lt;/div&gt;&#x27;;
+  box.querySelector(&#x27;textarea&#x27;).value = text;
+  box.querySelector(&#x27;button&#x27;).onclick = () =&gt; sendSafe(text);
+}
 document.getElementById(&#x27;go&#x27;).onclick = () =&gt; {
   const picked = ITEMS.filter(it =&gt; !DONE[it.n] &amp;&amp; (CHOICE[it.n] || fbOf(it.n)));
   if (!picked.length) { document.getElementById(&#x27;err&#x27;).style.display = &#x27;inline&#x27;; return; }
-  sendPrompt(picked.map(it =&gt; {
+  sendSafe(picked.map(it =&gt; {
     const c = CHOICE[it.n], f = fbOf(it.n);
     return &#x27;Brief #&#x27; + it.n + &#x27; (&#x27; + it.key + &#x27;): &#x27; + (c ? fill(c.prompt, it.n) + (f ? L.noteSep + f : &#x27;&#x27;) : f);
   }).join(&#x27;\n&#x27;));
