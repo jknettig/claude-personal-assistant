@@ -367,7 +367,7 @@ task list → <code>tasks.md</code>
 <p>Make small edits; don't rewrite whole files. Write each new rule with its date and, if given, the reason. Afterwards tell {{USER_NAME}} in one line what you changed, where, and from when it applies (for brief rules: from the next run). If an instruction conflicts with the <b>Hard rules</b> below, say so and don't change the rule.</p>
 <h3>When a message <code>BRIEF READY: &lt;path to JSON&gt;</code> arrives</h3>
 <ol><li>
-Read the JSON and <code>state.json</code>.
+Read the JSON and <code>state.json</code>. Drop every item whose key has a status other than <code>open</code> in state. <b>No exceptions:</b> don't override this filter with your own judgment. A <code>scheduled</code> item whose focus block is today appears only in <code>fyi</code> (today's focus blocks), not as a card.
 </li><li>
 Write the <code>headline</code>.
 </li><li>
@@ -644,6 +644,8 @@ If {{USER_NAME}} answered elsewhere, skip it too.
 </li></ul>
 </li><li>
 <b>Window for notifications:</b> everything not yet answered (the last message isn't from {{USER_NAME}}, there's no reaction, and it isn't <code>done</code> in state), max 14 days back.
+</li><li>
+<b>Proof, not claims:</b> in <code>verdictText</code>, name the author and time of the <b>last message</b> you actually read in the thread or DM ("last in thread: Alex 12:02"). If that last message is from {{USER_NAME}}, don't create the card. A bare "checked" without this is not allowed. This also applies to items carried over from an earlier brief or from state: <b>always re-check a carried-over card</b> by reading the thread to the end; never copy it from last time. Never reissue a key that is <code>done</code> or <code>dismissed</code> in state. A new question in the same thread gets a new key, and only if it is newer than {{USER_NAME}}'s last reply.
 </li><li>
 <b>Card fields:</b>
 <ul><li>

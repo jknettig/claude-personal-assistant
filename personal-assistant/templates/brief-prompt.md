@@ -72,6 +72,7 @@ Everything that reached {{USER_NAME}} as a notification gets its own card. Nothi
   - 👀 means still open.
   - If {{USER_NAME}} answered elsewhere, skip it too.
 - **Window for notifications:** everything not yet answered (the last message isn't from {{USER_NAME}}, there's no reaction, and it isn't `done` in state), max 14 days back.
+- **Proof, not claims:** in `verdictText`, name the author and time of the **last message** you actually read in the thread or DM ("last in thread: Alex 12:02"). If that last message is from {{USER_NAME}}, don't create the card. A bare "checked" without this is not allowed. This also applies to items carried over from an earlier brief or from state: **always re-check a carried-over card** by reading the thread to the end; never copy it from last time. Never reissue a key that is `done` or `dismissed` in state. A new question in the same thread gets a new key, and only if it is newer than {{USER_NAME}}'s last reply.
 - **Card fields:**
   - `title` = who · about what;
   - `verdictText` = 1–3 sentences: what they want, what it means for {{USER_NAME}}, and context from the thread, so the original doesn't need reading;

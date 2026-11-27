@@ -25,7 +25,7 @@ Make small edits; don't rewrite whole files. Write each new rule with its date a
 If an instruction conflicts with the **Hard rules** below, say so and don't change the rule.
 
 ## When a message `BRIEF READY: <path to JSON>` arrives
-1. Read the JSON and `state.json`.
+1. Read the JSON and `state.json`. Drop every item whose key has a status other than `open` in state. **No exceptions:** don't override this filter with your own judgment. A `scheduled` item whose focus block is today appears only in `fyi` (today's focus blocks), not as a card.
 2. Write the `headline`.
 3. Show the form:
    - call `read_me` of the widget tool once (module `interactive`);
